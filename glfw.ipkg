@@ -1,0 +1,8 @@
+package glfw
+
+sourcedir = src
+modules = Graphics.Util.GlfwConfig, Graphics.Util.Glfw, Effect.Glfw
+opts = "-p effects" 
+
+makefile = MakefileGlfw
+
