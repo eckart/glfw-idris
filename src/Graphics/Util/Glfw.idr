@@ -1,6 +1,6 @@
 module Graphics.Util.Glfw
 
-import Graphics.Util.GlfwConfig
+import public Graphics.Util.GlfwConfig
 
 %include C "GLFW/glfw3.h"
 
