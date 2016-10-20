@@ -7,53 +7,58 @@ import public Graphics.Util.GlfwConfig
 %access private
 
 ||| Glfw Window
-abstract
+public export
 data GlfwWindow = Win Ptr
 
 ||| Glfw Monitor
-abstract
+public export
 data GlfwMonitor = Monitor Ptr | DefaultMonitor
 
-public 
+public export 
 defaultMonitor : GlfwMonitor
 defaultMonitor = DefaultMonitor
 
-public
-class Flag a where
+public export
+interface Flag a where
   toInt   : a -> Int
 
-class Flag a => GlfwConstant a where
+public export
+interface Flag a => GlfwConstant a where
   fromInt : Int -> a
 
-public
+public export
 data KeyEventTy
   = GLFW_PRESS
   | GLFW_RELEASE
   | GLFW_REPEAT
 
-instance Flag KeyEventTy where
+public export
+implementation Flag KeyEventTy where
   toInt   GLFW_PRESS   = 1
   toInt   GLFW_RELEASE = 0
   toInt   GLFW_REPEAT  = 2
 
-instance GlfwConstant KeyEventTy where
+public export
+implementation GlfwConstant KeyEventTy where
   fromInt 1            = GLFW_PRESS
   fromInt 0            = GLFW_RELEASE 
   fromInt 2            = GLFW_REPEAT
 
-instance Eq KeyEventTy where
+public export
+implementation Eq KeyEventTy where
   GLFW_PRESS   == GLFW_PRESS   = True
   GLFW_RELEASE == GLFW_RELEASE = True
   GLFW_REPEAT  == GLFW_REPEAT  = True
   _            == _            = False
   
-instance Show KeyEventTy where
+public export
+implementation Show KeyEventTy where
   show GLFW_PRESS   = "GLFW_PRESS"
   show GLFW_RELEASE = "GLFW_RELEASE"
   show GLFW_REPEAT  = "GLFW_REPEAT"
 
 -- | Special key is a key not represented in the 32 - 127 printable ASCII range.
-public
+public export
 data FunctionKey
   = UNKNOWN
   | GLFW_KEY_ESCAPE
@@ -129,7 +134,8 @@ data FunctionKey
   | GLFW_KEY_LAST
 
 
-instance Flag FunctionKey where
+public export
+implementation Flag FunctionKey where
   toInt UNKNOWN                     = -1
   toInt GLFW_KEY_ESCAPE             = 256
   toInt GLFW_KEY_ENTER              = 257
@@ -204,13 +210,15 @@ instance Flag FunctionKey where
   toInt GLFW_KEY_LAST               = 348
 
 
-instance Eq FunctionKey where
+public export
+implementation Eq FunctionKey where
   (==) k l = (toInt k) == (toInt l)
 
-instance Show FunctionKey where
+public export
+implementation Show FunctionKey where
   show k = "Key " ++ (show (toInt k)) 
 
-public
+public export
 data GlfwFlags 
   = GLFW_FOCUSED
   | GLFW_ICONIFIED
@@ -263,7 +271,8 @@ data GlfwFlags
   | GLFW_RELEASE_BEHAVIOR_NONE
 
   
-instance Flag GlfwFlags where 
+public export
+implementation Flag GlfwFlags where 
   toInt GLFW_FOCUSED                = 0x00020001
   toInt GLFW_ICONIFIED              = 0x00020002
   toInt GLFW_RESIZABLE              = 0x00020003
@@ -315,31 +324,33 @@ instance Flag GlfwFlags where
   toInt GLFW_RELEASE_BEHAVIOR_NONE  = 0x00035002
 
 
-instance Flag Bool where
+public export
+implementation Flag Bool where
   toInt   True  = 1
   toInt   False = 0
 
-instance GlfwConstant Bool where
+public export
+implementation GlfwConstant Bool where
   fromInt 1     = True
   fromInt 0     = False
 
 -- GLFW from here  
 
-public
+export
 glfwInit : IO Bool
 glfwInit = do ret <- foreign FFI_C "glfwInit" (IO Int)
               pure $ if ret == 1 then True else False
 
-public
+export
 glfwWindowHint : GlfwFlags -> Int -> IO ()
 glfwWindowHint flag val = foreign FFI_C "glfwWindowHint" (Int -> Int -> IO ()) (toInt flag) val
 
-public
+export
 glfwGetPrimaryMonitor : IO GlfwMonitor
 glfwGetPrimaryMonitor = do p <- foreign FFI_C "glfwGetPrimaryMonitor" (IO Ptr) 
                            pure $ Monitor p
 
-public 
+export 
 glfwCreateWindow : (title: String) -> (width: Int) -> (height: Int) -> GlfwMonitor -> IO GlfwWindow 
 glfwCreateWindow title width height (Monitor ptr) = 
   do p <- foreign FFI_C "glfwCreateWindow" (Int -> Int -> String -> Ptr -> Ptr -> IO Ptr) width height title ptr prim__null
@@ -348,49 +359,49 @@ glfwCreateWindow title width height DefaultMonitor =
   do p <- foreign FFI_C "glfwCreateWindow" (Int -> Int -> String -> Ptr -> Ptr -> IO Ptr) width height title prim__null prim__null
      pure $ Win p
 
-public 
+export 
 isWindow : GlfwWindow -> IO Bool
 isWindow (Win ptr) = nullPtr ptr
 
-public 
+export 
 glfwMakeContextCurrent : GlfwWindow -> IO ()
 glfwMakeContextCurrent (Win ptr) = foreign FFI_C "glfwMakeContextCurrent" (Ptr -> IO()) ptr
 
 
-public 
+export 
 glfwDestroyWindow : GlfwWindow -> IO ()
 glfwDestroyWindow (Win ptr) = foreign FFI_C "glfwDestroyWindow" (Ptr -> IO()) ptr
 
-public 
+export 
 glfwTerminate : IO ()
 glfwTerminate  = foreign FFI_C "glfwTerminate" (IO ())
 
-public
+export
 glfwSwapBuffers : GlfwWindow -> IO ()
 glfwSwapBuffers (Win ptr) = foreign FFI_C "glfwSwapBuffers" (Ptr -> IO()) ptr
 
-public 
+export 
 glfwWaitEvents : IO ()
 glfwWaitEvents = foreign FFI_C "glfwWaitEvents" (IO ())
 
-public 
+export 
 glfwPollEvents : IO ()
 glfwPollEvents = foreign FFI_C "glfwPollEvents" (IO ())
 
-public 
+export 
 glfwSetInputMode : GlfwWindow -> GlfwFlags -> Int -> IO ()
 glfwSetInputMode (Win ptr) flag val = foreign FFI_C "glfwSetInputMode" (Ptr -> Int -> Int -> IO ()) ptr (toInt flag) val
 
-public 
+export 
 glfwGetFunctionKey : GlfwWindow -> FunctionKey -> IO KeyEventTy
 glfwGetFunctionKey (Win ptr) k = do e <- foreign FFI_C "glfwGetKey" (Ptr -> Int -> IO Int) ptr (toInt k)
                                     pure $ fromInt e
-public 
+export 
 glfwGetKey : GlfwWindow -> Char -> IO KeyEventTy
 glfwGetKey (Win ptr) k = do e <- foreign FFI_C "glfwGetKey" (Ptr -> Int -> IO Int) ptr (ord $ toUpper k)
                             pure $ fromInt e
                         
-public 
+export 
 glfwWindowShouldClose : GlfwWindow -> IO Bool
 glfwWindowShouldClose (Win ptr) = do flag <- foreign FFI_C "glfwWindowShouldClose" (Ptr -> IO Int) ptr
                                      let bool = if flag == 0 then False else True
@@ -476,7 +487,7 @@ GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
 
 --}
 
-public
+export
 glfwSwapInterval : Int -> IO ()
 glfwSwapInterval interval = foreign FFI_C "glfwSwapInterval" (Int -> IO ()) interval
 

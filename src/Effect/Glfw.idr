@@ -3,7 +3,7 @@ module Effect.Glfw
 import Effects
 import public Graphics.Util.Glfw
 
-%access public 
+%access public export
 
 data GlfwMode : Type where
   On : GlfwMode
@@ -15,7 +15,7 @@ data Glfw : Effect where
                -> sig Glfw a GlfwMode (\w => GlfwMode)
   Terminate : sig Glfw () GlfwMode ()
 
-instance Handler Glfw IO where
+implementation Handler Glfw IO where
   handle () Initialise    k = do ret <- glfwInit
                                  if ret then k True On
                                         else k False ()
@@ -59,7 +59,7 @@ GLFW_WINDOW res = MkEff res GlfwWindowEff
 GLFW_WINDOW_ON : EFFECT
 GLFW_WINDOW_ON = GLFW_WINDOW GlfwWindow
 
-instance Handler GlfwWindowEff IO where
+implementation Handler GlfwWindowEff IO where
   handle () (CreateWindow title width height) k = 
     do win <- glfwCreateWindow title width height defaultMonitor 
        isNull <- isWindow win

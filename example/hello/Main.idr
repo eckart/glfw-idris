@@ -13,14 +13,14 @@ initDisplay title width height = do
   win <- glfwCreateWindow title width height defaultMonitor
   -- now we pretend every thing is going to be ok
   glfwMakeContextCurrent win
-  return win
+  pure win
 
 isKeyPressed : GlfwWindow -> Char -> IO Bool
 isKeyPressed win key = do 
   ev <- glfwGetKey win key 
   if ev == GLFW_PRESS
-  then return True
-  else return False
+  then pure True
+  else pure False
 
 main : IO ()
 main = do win <- initDisplay "Hello Idris" 640 480
